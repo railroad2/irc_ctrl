@@ -1,8 +1,8 @@
 
 CC=gcc -x c
 FLAGS= -I/usr/include/opencv4 \
-	   -I/storage/irc/GetThermal/source/libuvc/build/include \
-	   -lmysqlclient -L/storage/irc/GetThermal/source/libuvc/build \
+	   -I/usr/local/include \
+	   -lmysqlclient -L/usr/local/lib \
 	   -luvc -lopencv_core -lopencv_imgcodecs -lpthread 
 
 LIBROOT=/home/kmlee/usr
@@ -41,6 +41,9 @@ test:
 	LD_LIBRARY_PATH=/storage/irc/GetThermal/source/libuvc/build/ ./singlecam 0013001c-5113-3437-3335-373400000000 2 &
 	LD_LIBRARY_PATH=/storage/irc/GetThermal/source/libuvc/build/ ./singlecam 00070029-5102-3038-3835-393400000000 3 &
 	LD_LIBRARY_PATH=/storage/irc/GetThermal/source/libuvc/build/ ./singlecam 8010800b-5113-3437-3335-373400000000 4 &
+
+install:
+	cp irc_daemon /home/gb/bin/
 
 clean:
 	rm irc_module irc_daemon singlecam shutter example sunpos

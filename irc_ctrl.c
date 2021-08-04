@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#include "/home/gb/GetThermal/libuvc/include/libuvc/libuvc.h"
+#include "libuvc/libuvc.h"
 #include "detect_sun.c"
 #include "shutter_ctrl.c"
 
@@ -76,7 +76,7 @@ void cb(uvc_frame_t *frame, void *ptr)
     //printf("%d ", seq);
     /* capture every 9 frame */
 	//if (seq % 90 != 0)
-    if (seq % 40 != 0)
+    if (seq % 87 != 0)
     {
         return;
     }

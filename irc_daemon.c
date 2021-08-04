@@ -5,8 +5,9 @@
 #include <time.h>
 #include <pthread.h>
 
-#include "/storage/irc/GetThermal/source/libuvc/include/libuvc/libuvc.h"
 #include "irc_ctrl.c"
+#include "camserial.h"
+#include "libuvc/libuvc.h"
 
 struct Irc_str cams[4];
 
@@ -33,13 +34,6 @@ int main()
 {
 
     int i;
-    const char *serial[4] = {
-	    "0013001c-5113-3437-3335-373400000000",  // 1
-        "0015002c-5119-3038-3732-333700000000",  // 2
-	    "8010800b-5113-3437-3335-373400000000",  // 3
-        "80148008-5113-3437-3335-373400000000",
-	    //"00070029-5102-3038-3835-393400000000",  // 4
-        }; 
 
     int idCam[4] = {1, 2, 3, 4};
 

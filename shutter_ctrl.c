@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "/storage/irc/GetThermal/source/libuvc/include/libuvc/libuvc.h"
+#include "libuvc/libuvc.h"
 #include "LEPTON_SDK.h"
 #include "LEPTON_SYS.h"
 

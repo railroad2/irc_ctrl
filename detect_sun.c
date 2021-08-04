@@ -24,12 +24,12 @@ int sunpos(struct Position* pos)
     time.second = tm.tm_sec;
 
     // Teide observatory
-    //location.longitude = -16.5124758;
-    //location.latitude = 28.300463;
+    loc.longitude = -16.5124758;
+    loc.latitude = 28.300463;
 
     // Seoul
-    loc.longitude = 127.0;
-    loc.latitude = 37.6;
+    //loc.longitude = 127.0;
+    //loc.latitude = 37.6;
 
     SolTrack(time, 
              loc,
@@ -55,7 +55,7 @@ int detect_sun(int idcam)
     az = pos.azimuthRefract;
     al = pos.altitudeRefract;
 
-    if (al > 61.5) {
+    if (al > 30) {
         printf("altitude=%lf\n", al);
         sunflag = 1;
     }
