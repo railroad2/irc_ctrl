@@ -89,21 +89,19 @@ void cb(uvc_frame_t *frame, void *ptr)
     int i;
 
     char fileName[64];
-    char dirName[20]; 
-    char datestr[10];
+    char dirName[40]; 
+    char datestr[20];
     char isotstr[20];
     struct Imginfo info;
     int ncam = *(int*) ptr;
     
-    printf("%d\n", ncam);
-
     char *isottmp = get_isot();
     strcpy(isotstr, get_isot());
     free (isottmp);
 
     strncpy(datestr, isotstr, 10);
 
-    snprintf(dirName, 20, "./log/%s", datestr);
+    snprintf(dirName, 40, "./log/%s", datestr);
     mkdir(dirName, 0777);
     
     snprintf(fileName, 64, "./log/%s/%s-cam%d", datestr, isotstr, ncam);
@@ -114,6 +112,7 @@ void cb(uvc_frame_t *frame, void *ptr)
     info.sunflag = 0;
     info.moonflag = 0;
 
+    /* debug 
     printf ("%s\n", isotstr);
     printf ("%s\n", datestr);
     printf ("%s\n", info.isotstr);
@@ -121,8 +120,8 @@ void cb(uvc_frame_t *frame, void *ptr)
     printf ("%d\n", info.ncam);
     printf ("%d\n", info.sunflag);
     printf ("%d\n", info.moonflag);
+    printf ("%s\n", dirName);
     printf ("%s\n", fileName);
-    /* debug 
     */
 
     FILE *file  = fopen(fileName, "w+");
@@ -237,6 +236,7 @@ STARTSTREAMING:
         return (void*)-1;
     }
 
+    uvc_set_ae_mode(devh, 2);
     res = uvc_start_streaming(devh, &ctrl, cb, (void*) &cam.idcam, 0);
     if (res < 0) {
         uvc_perror(res, "start_streaming");

@@ -47,7 +47,7 @@ CLOSE:
         puts ("Shutter CLOSED\n");
     }   
     // open
-    else {
+    else if (onoff == 1) {
 OPEN:
         lres = LEP_GetSysFfcShutterModeObj(&m_portDesc, &shutterModeObj);
         if (shutterModeObj.shutterMode != LEP_SYS_FFC_SHUTTER_MODE_AUTO) {

@@ -149,6 +149,14 @@ int main()
     lres = LEP_GetSysShutterPosition(&m_portDesc, &shutterPosition);
     printf("%d\t%s\n", lres, shutterPosition2string(shutterPosition));
 
+    //shutterModeObj.shutterMode = LEP_SYS_FFC_SHUTTER_MODE_MANUAL;
+    shutterModeObj.shutterMode = LEP_SYS_FFC_SHUTTER_MODE_AUTO;
+    lres = LEP_SetSysFfcShutterModeObj(&m_portDesc, shutterModeObj);
+    puts("shutter mode set!");
+    lres = LEP_GetSysFfcShutterModeObj(&m_portDesc, &shutterModeObj);
+    printf("shutter mode : %d\n", shutterModeObj.shutterMode);
+
+    /*
     while(1) {
         sleep (3);
 
@@ -158,6 +166,7 @@ int main()
         lres = LEP_GetSysShutterPosition(&m_portDesc, &shutterPosition);
         printf("%d\t%s\n", lres, shutterPosition2string(shutterPosition));
     }
+    */
         
     atexit(exiting);
 
