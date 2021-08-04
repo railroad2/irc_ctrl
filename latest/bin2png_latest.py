@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import shutil
+import atexit
 from datetime import datetime
 
 import numpy as np
@@ -99,8 +100,12 @@ def convert_latest():
                 tmp = ftime + " Cam 3 BL"
             f.write("%s\n" % tmp);
 
+@atexit.register
+def goodbye():
+    print ('bin2png_latest.py is stopped.')
+
 def main():
-    print ('bin2png_latest.py is running')
+    print ('bin2png_latest.py is started.')
     while 1:
         try:
             try:
@@ -111,8 +116,8 @@ def main():
             shutil.copy2(imgpath+'imagetime.txt', '/var/www/html/image')
             time.sleep(9)
         except KeyboardInterrupt:
-            print ('done')
             exit(0)
+
 
 if __name__=='__main__':
     main()
