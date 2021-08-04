@@ -1,0 +1,10 @@
+[Unit]
+Description=IR camera image converter
+
+[Service]
+ExecStart=/home/gb/irc_ctrl/latest/start.sh
+WorkingDirectory=/home/gb/irc_ctrl/latest
+
+[Install]
+WantedBy=multi-user.target
+
