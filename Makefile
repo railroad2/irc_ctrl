@@ -26,7 +26,7 @@ single: singlecam.c
 
 
 shutter: shutter.c
-	$(CC) -o shutter shutter.c $(FLAGS) $(INC) $(LIBLEP) 
+	$(CC) -o shutter shutter.c $(FLAGS) $(INC) $(LIBLEP) $(LIBSOL)
 
 
 #takesingle: irc_takesingle.c
