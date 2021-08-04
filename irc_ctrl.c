@@ -45,7 +45,7 @@ char* get_isot()
     return isotstr;
 }
 
-int fwrite_header(struct Imginfo *info)
+int fwrite_header(struct Imginfo *info, FILE *file)
 {
     return 0; 
 }
@@ -123,7 +123,7 @@ void cb(uvc_frame_t *frame, void *ptr)
     printf ("%d\n", info.moonflag);
     printf ("%s\n", fileName);
     /* debug 
-     */
+    */
 
     FILE *file  = fopen(fileName, "w+");
     if (file == NULL)
