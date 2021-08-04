@@ -44,6 +44,7 @@ test:
 
 install:
 	cp irc_daemon /home/gb/bin/
+	mkdir log
 
 clean:
 	rm irc_module irc_daemon singlecam shutter example sunpos
