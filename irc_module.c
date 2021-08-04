@@ -4,7 +4,7 @@
 #include <signal.h>
 #include <time.h>
 
-#include "/storage/irc/GetThermal/source/libuvc/include/libuvc/libuvc.h"
+#include "libuvc/libuvc.h"
 
 static double threshold;
 static int thresholdN;

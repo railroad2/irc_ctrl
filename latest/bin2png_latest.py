@@ -10,6 +10,7 @@ import pylab as plt
 from PIL import Image
 from matplotlib import cm
 
+imgpath = '/home/gb/irc_ctrl/latest/'
 
 def load_bin(fname):
     f = open(fname, 'rb')
@@ -74,7 +75,7 @@ def convert_latest():
     arr = []
     ftimes = []
     for fname in fnames:
-        arr.append(load_bin(fname))
+        arr.append(load_bin(imgpath+fname))
         ftimes.append(datetime.utcfromtimestamp(os.path.getmtime(fname)).isoformat())
     
     arr = np.array(arr)
@@ -84,9 +85,9 @@ def convert_latest():
     arr1 = np.concatenate((arr[1], arr[0]), axis=2)
     arr2 = np.concatenate((arr[2], arr[3]), axis=2)
     arr = np.concatenate((arr1, arr2), axis=1)
-    arr2png(arr, 'image.png', './')
+    arr2png(arr, 'image.png', imgpath)
 
-    with open('imagetime.txt', 'w') as f:
+    with open(imgpath+'imagetime.txt', 'w') as f:
         for i, ftime in enumerate(ftimes):
             if i == 0:
                 tmp = ftime + " Cam 1 TR (OFF)"
@@ -106,8 +107,8 @@ def main():
                 convert_latest()
             except TypeError:
                 continue
-            shutil.copy2('./image.png', '/var/www/html/image')
-            shutil.copy2('./imagetime.txt', '/var/www/html/image')
+            shutil.copy2(imgpath+'image.png', '/var/www/html/image')
+            shutil.copy2(imgpath+'imagetime.txt', '/var/www/html/image')
             time.sleep(9)
         except KeyboardInterrupt:
             print ('done')
