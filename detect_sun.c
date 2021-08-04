@@ -53,7 +53,8 @@ int detect_sun(int idcam)
     res = sunpos(&pos);
 
     az = pos.azimuthRefract;
-    al = pos.altitudeRefract;
+    //al = pos.altitudeRefract;
+    al = pos.altitude;
 
     if (al > 30) {
         printf("altitude=%lf\n", al);
