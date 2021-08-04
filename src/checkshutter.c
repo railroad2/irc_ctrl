@@ -50,7 +50,6 @@ int checkshutter(int i)
     if (res < 0) {
         uvc_perror(res, "uvc_init");
     }
-    puts ("UVC initialized");
 
     res = uvc_find_device(cam.ctx, &cam.dev, 0x1e4e, 0x0100, cam.serial);
     if (res < 0) {

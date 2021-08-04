@@ -5,38 +5,35 @@ FLAGS= -I/usr/include/opencv4 \
 	   -lmysqlclient -L/usr/local/lib \
 	   -luvc -lopencv_core -lopencv_imgcodecs -lpthread 
 
-LIBROOT=/home/kmlee/usr
+LIBROOT=/usr/local
 INC=-I$(LIBROOT)/include 
 LIBLEP=-L$(LIBROOT)/lib -llepton -lm
 LIBSOL=-L/usr/local/lib -lSolTrack -lm
 
 
 
-daemon: irc_daemon.c
-	$(CC) -o irc_daemon irc_daemon.c $(FLAGS) $(LIBSOL) $(LIBLEP) $(INC)
+daemon: src/irc_daemon.c
+	$(CC) -o irc_daemon src/irc_daemon.c $(FLAGS) $(LIBSOL) $(LIBLEP) $(INC)
 
-all: daemon module shutter sunpos
+all: daemon module shutter sunpos checkshutter
 
-module: irc_module.c
-	$(CC) -o irc_module irc_module.c $(FLAGS)
+module: src/irc_module.c
+	$(CC) -o irc_module src/irc_module.c $(FLAGS)
 	
 
-single: singlecam.c
-	$(CC) -o singlecam singlecam.c  $(FLAGS)
+single: src/singlecam.c
+	$(CC) -o singlecam src/singlecam.c  $(FLAGS)
 
 
-shutter: shutter.c
-	$(CC) -o shutter shutter.c $(FLAGS) $(INC) $(LIBLEP) $(LIBSOL)
+shutter: src/shutter.c
+	$(CC) -o shutter src/shutter.c $(FLAGS) $(INC) $(LIBLEP) $(LIBSOL)
 
 
-#takesingle: irc_takesingle.c
-#	$(CC) -o irc_takesingle irc_takesingle.c $(FLAGS) $(INC) $(LIBLEP)  $(LIBSOL)
-
-sunpos: sunpos.c
-	$(CC) -o sunpos sunpos.c $(LIBSOL)
+sunpos: src/sunpos.c
+	$(CC) -o sunpos src/sunpos.c $(LIBSOL)
 	
-checkshutter: checkshutter.c
-	$(CC) -o checkshutter checkshutter.c $(FLAGS) $(INC) $(LIBLEP) $(LIBSOL)
+checkshutter: src/checkshutter.c
+	$(CC) -o checkshutter src/checkshutter.c $(FLAGS) $(INC) $(LIBLEP) $(LIBSOL)
 
 test:
 	LD_LIBRARY_PATH=/storage/irc/GetThermal/source/libuvc/build/ ./singlecam 0015002c-5119-3038-3732-333700000000 1 &
@@ -48,5 +45,8 @@ install:
 	cp irc_daemon /home/gb/bin/
 	mkdir log
 
+install_service:
+	cp services/*.service /etc/systemd/system/
+
 clean:
-	rm irc_module irc_daemon singlecam shutter example sunpos
+	rm irc_module irc_daemon singlecam shutter sunpos checkshutter
