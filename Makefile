@@ -35,6 +35,8 @@ shutter: shutter.c
 sunpos: sunpos.c
 	$(CC) -o sunpos sunpos.c $(LIBSOL)
 	
+checkshutter: checkshutter.c
+	$(CC) -o checkshutter checkshutter.c $(FLAGS) $(INC) $(LIBLEP) $(LIBSOL)
 
 test:
 	LD_LIBRARY_PATH=/storage/irc/GetThermal/source/libuvc/build/ ./singlecam 0015002c-5119-3038-3732-333700000000 1 &

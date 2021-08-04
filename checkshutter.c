@@ -32,16 +32,9 @@ void INThandler(int sig)
     exiting();
 }
 
-int main()
+int checkshutter(int i)
 {
-
-    int i;
-
     int idCam[4] = {1, 2, 3, 4};
-
-    pid_t pid[4];
-    pthread_t pthread[4];
-
     uvc_error_t              res;
     uvc_device_descriptor_t *desc;
     uvc_device_handle_t     *devh;
@@ -49,8 +42,6 @@ int main()
     LEP_CAMERA_PORT_DESC_T m_portDesc;
 
     signal (SIGINT, INThandler);
-
-    i = 2;
 
     cam.serial = (char*)serial[i];
     cam.idcam = idCam[i];
@@ -64,6 +55,7 @@ int main()
     res = uvc_find_device(cam.ctx, &cam.dev, 0x1e4e, 0x0100, cam.serial);
     if (res < 0) {
         uvc_perror(res, "uvc_find_device");
+        return -1;
     }
 
     uvc_get_device_descriptor(cam.dev, &desc);
@@ -83,28 +75,7 @@ int main()
                 
     //printf("LEPTON port opened\n");
 
-    
     const uvc_extension_unit_t *units = uvc_get_extension_units(devh);
-    /*
-    while (units)
-    {
-        printf("Found extension unit ID %d, controls: %08lx, GUID:", units->bUnitID, units->bmControls); 
-        for (i = 0; i < 16; i++)
-            printf(" %02x", units->guidExtensionCode[i]);
-        printf("\n");
-        units = units->next;
-    }
-
-    const uvc_format_desc_t *desc1 = uvc_get_format_descs(devh);
-    while (desc != NULL)
-    {
-        int width, height;
-        width = desc1->frame_descs[0].wWidth;
-        height = desc1->frame_descs[0].wHeight;
-        printf("w = %d, h = %d\n", width, height);
-        break;
-    }
-    */
 
     uvc_device_t* dev_test;
     int bus, addr;
@@ -112,54 +83,35 @@ int main()
     dev_test = uvc_get_device(devh);
     bus = uvc_get_bus_number(dev_test);
     addr = uvc_get_device_address(dev_test);
-    //printf("%d, %d\n", bus, addr);
 
     dev_test = uvc_get_device((uvc_device_handle_t*) m_portDesc.userPtr);
     bus = uvc_get_bus_number(dev_test);
     addr = uvc_get_device_address(dev_test);
-    //printf("%d, %d\n", bus, addr);
-
     
     LEP_RESULT lres;
     LEP_SYS_SHUTTER_POSITION_E shutterPosition;
     LEP_SYS_FFC_SHUTTER_MODE_OBJ_T shutterModeObj;
     
-    puts("Setting the shutter mode");
-    lres = LEP_GetSysFfcShutterModeObj(&m_portDesc, &shutterModeObj);
-    printf("shutter mode : %d\n", shutterModeObj.shutterMode);
-
-    shutterModeObj.shutterMode = LEP_SYS_FFC_SHUTTER_MODE_MANUAL;
-    //shutterModeObj.shutterMode = LEP_SYS_FFC_SHUTTER_MODE_AUTO;
-    lres = LEP_SetSysFfcShutterModeObj(&m_portDesc, shutterModeObj);
-    puts("shutter mode set!");
     lres = LEP_GetSysFfcShutterModeObj(&m_portDesc, &shutterModeObj);
     printf("shutter mode : %d\n", shutterModeObj.shutterMode);
 
     lres = LEP_GetSysShutterPosition(&m_portDesc, &shutterPosition);
-    printf("%d\t%s\n", lres, shutterPosition2string(shutterPosition));
+    printf("shutter position : %d\t%s\n", lres, shutterPosition2string(shutterPosition));
 
-    lres = LEP_SetSysShutterPosition(&m_portDesc, LEP_SYS_SHUTTER_POSITION_CLOSED);
-    //lres = LEP_SetSysShutterPosition(&m_portDesc, LEP_SYS_SHUTTER_POSITION_BRAKE_ON);
-
-    lres = LEP_GetSysShutterPosition(&m_portDesc, &shutterPosition);
-    printf("%d\t%s\n", lres, shutterPosition2string(shutterPosition));
-
-    //lres = LEP_SetSysShutterPosition(&m_portDesc, LEP_SYS_SHUTTER_POSITION_BRAKE_ON);
-
-    lres = LEP_GetSysShutterPosition(&m_portDesc, &shutterPosition);
-    printf("%d\t%s\n", lres, shutterPosition2string(shutterPosition));
-
-    while(1) {
-        sleep (3);
-
-        lres = LEP_SetSysShutterPosition(&m_portDesc, LEP_SYS_SHUTTER_POSITION_CLOSED);
-        //lres = LEP_SetSysShutterPosition(&m_portDesc, LEP_SYS_SHUTTER_POSITION_BRAKE_ON);
-
-        lres = LEP_GetSysShutterPosition(&m_portDesc, &shutterPosition);
-        printf("%d\t%s\n", lres, shutterPosition2string(shutterPosition));
+    if (detect_irc(cam)){
+        uvc_unref_device(cam.dev);
     }
-        
-    atexit(exiting);
+    uvc_exit(cam.ctx);
+}
+
+int main()
+{
+
+    int i;
+
+    for (i=0; i<4; i++) {
+        checkshutter(i);
+    }
 
     return 0;
 }
