@@ -60,6 +60,12 @@ int main(int argc, char* argv[])
     for (i=0; i<4; i++) {
         cams[i].serial = (char*) camcfg.serial[i];
         cams[i].idcam = camcfg.camid[i];
+        cams[i].saverate = camcfg.saverate;
+        cams[i].showrate = camcfg.showrate;
+        cams[i].logpath = camcfg.logpath;
+        cams[i].latestpath = camcfg.latestpath;
+        cams[i].sun_alt_threshold = camcfg.sun_alt_threshold;
+
         res = uvc_init(&cams[i].ctx, NULL);
         if (res < 0) {
             uvc_perror(res, "uvc_init");

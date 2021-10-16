@@ -30,7 +30,7 @@ struct Irc_str {
     int showrate;
     char *logpath;
     char *latestpath;
-    
+    double sun_alt_threshold; 
 };
 
 char* get_isot() 
@@ -282,7 +282,7 @@ STARTSTREAMING:
             return (void*)-1;
         }
         
-        sunflag = detect_sun(cam.idcam);
+        sunflag = detect_sun(cam.idcam, cam.sun_alt_threshold);
         //sunflag = detect_sun_test(cam.idcam);
 
         if (sunflag == 1) {

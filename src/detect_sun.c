@@ -42,7 +42,7 @@ int sunpos(struct Position* pos)
     return 0;
 }
 
-int detect_sun(int idcam)
+int detect_sun(int idcam, double alt_threshold)
 {
     int res;
     int sunflag;
@@ -56,7 +56,7 @@ int detect_sun(int idcam)
     //al = pos.altitudeRefract;
     al = pos.altitude;
 
-    if (al > 30) {
+    if (al > alt_threshold) {
         printf("altitude=%lf\n", al);
         sunflag = 1;
     }
