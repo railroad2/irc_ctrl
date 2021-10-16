@@ -11,61 +11,11 @@ import pylab as plt
 from PIL import Image
 from matplotlib import cm
 
-imgpath = '/home/gb/irc_ctrl/latest/'
+sys.path.append(os.path.dirname(os.getcwd()))
+from scripts.bin2png import *
 
-def load_bin(fname):
-    f = open(fname, 'rb')
-    
-    arr = []
-    tmp = []
-
-    while True:
-        data = f.read(2)
-
-        if data == b'':
-            break
-
-        val = int.from_bytes(data, byteorder='little')
-
-        tmp.append(val)
-        if len(tmp) == 19200:
-            arr.append(np.array(tmp).reshape((120, 160)))
-            tmp = []
-
-    f.close()
-
-    return arr
-   
-
-def writepng_pil(im, ofname):
-    vmin = np.min(im)
-    vmax = np.max(im)
-    im = np.array((im - 27315) / 3000 * 255, dtype=np.uint8)
-    arr = cm.rainbow(im)[:,:,:3]*255
-    arr = np.array(arr, dtype=np.uint8)
-    img = Image.fromarray(arr, 'RGB')
-    img.save(ofname)
-
-
-def arr2png(arr, fname, outpath='./png'):
-    for i, im in enumerate(arr):
-        ofname = f'{outpath}/{fname}'
-        writepng_pil(im, ofname)
-
-
-def convert_dir(path):
-    flist = os.listdir(path)
-    flist.sort()
-    for fname in flist:
-        infile = os.path.join(path, fname)
-        print (infile)
-        convert_bin(infile)
-
-
-def convert_bin(fname):
-    arr = load_bin(fname)
-    ofname = fname.split('/')[-1] 
-    arr2png(arr, ofname)
+#imgpath = '/home/gb/irc_ctrl/latest'
+imgpath = './'
 
 
 def convert_latest():
@@ -73,25 +23,97 @@ def convert_latest():
               'latest_cam2', 
               'latest_cam3', 
               'latest_cam4' ]
-    arr = []
+    arrs = []
     ftimes = []
     for fname in fnames:
-        arr.append(load_bin(imgpath+fname))
+        arrtmp = load_bin(imgpath + fname)
+        arrtmp = scale_arr(arrtmp)
+        if len(arrtmp) == 0:
+            arrtmp = np.zeros((120,160))
+        arrs.append(arrtmp)
         ftimes.append(datetime.utcfromtimestamp(os.path.getmtime(fname)).isoformat())
     
-    arr = np.array(arr)
-    arr = np.array(arr)
-    arr[0] = arr[0][:, ::-1, ::-1]
-    arr[1] = arr[1][:, ::-1, ::-1]
-    arr1 = np.concatenate((arr[1], arr[0]), axis=2)
-    arr2 = np.concatenate((arr[2], arr[3]), axis=2)
-    arr = np.concatenate((arr1, arr2), axis=1)
-    arr2png(arr, 'image.png', imgpath)
+    arrs = np.array(arrs)
+    arrs[0] = arrs[0][::-1, ::-1]
+    arrs[1] = arrs[1][::-1, ::-1]
+    imgs = []
+    for arr in arrs:
+        imgtmp = arr2png(arr)
+        if np.min(arr) == np.max(arr):
+            imgtmp = blankimg(imgtmp, 'offline')
+        imgs.append(np.array(imgtmp))
+        
+    #arr1 = np.concatenate((arr[1], arr[0]), axis=2)
+    #arr2 = np.concatenate((arr[2], arr[3]), axis=2)
+    #arr = np.concatenate((arr1, arr2), axis=1)
+    #arr2png(arr, 'image.png', imgpath)
+    img1 = np.concatenate((imgs[1], imgs[0]), axis=1)
+    img2 = np.concatenate((imgs[2], imgs[3]), axis=1)
+    img = np.concatenate((img1, img2), axis=0)
+    img = Image.fromarray(img, 'RGB')
+
+    writepng_pil(img, 'image.png' , outpath='./')
+    
 
     with open(imgpath+'imagetime.txt', 'w') as f:
         for i, ftime in enumerate(ftimes):
             if i == 0:
-                tmp = ftime + " Cam 1 TR (OFF)"
+                tmp = ftime + " Cam 1 TR"
+            elif i == 3:
+                tmp = ftime + " Cam 4 BR"
+            elif i  == 1:
+                tmp = ftime + " Cam 2 TL"
+            elif i == 2:
+                tmp = ftime + " Cam 3 BL"
+            f.write("%s\n" % tmp);
+
+
+def convert_latest_custom_scaling():
+    fnames = ['latest_cam1', 
+              'latest_cam2', 
+              'latest_cam3', 
+              'latest_cam4' ]
+    arrs = []
+    ftimes = []
+    for fname in fnames:
+        arrtmp = load_bin(imgpath + fname)
+        if len(arrtmp) == 0:
+            arrtmp = np.zeros((120,160))
+        arrs.append(arrtmp)
+        ftimes.append(datetime.utcfromtimestamp(os.path.getmtime(fname)).isoformat())
+
+    vmin = np.min(arrs[3])
+    vmax = np.max(arrs[3])
+    for i, arr in enumerate(arrs):
+        arrs[i] = scale_arr(arr)
+        #arrs[i] = scale_arr(arr, [0, 25])
+    
+    arrs = np.array(arrs)
+    arrs[0] = arrs[0][::-1, ::-1]
+    arrs[1] = arrs[1][::-1, ::-1]
+    imgs = []
+    for arr in arrs:
+        imgtmp = arr2png(arr)
+        if np.min(arr) == np.max(arr):
+            imgtmp = blankimg(imgtmp, 'offline')
+        imgs.append(np.array(imgtmp))
+        
+    #arr1 = np.concatenate((arr[1], arr[0]), axis=2)
+    #arr2 = np.concatenate((arr[2], arr[3]), axis=2)
+    #arr = np.concatenate((arr1, arr2), axis=1)
+    #arr2png(arr, 'image.png', imgpath)
+    img1 = np.concatenate((imgs[1], imgs[0]), axis=1)
+    img2 = np.concatenate((imgs[2], imgs[3]), axis=1)
+    img = np.concatenate((img1, img2), axis=0)
+    img = Image.fromarray(img, 'RGB')
+
+    writepng_pil(img, 'image.png' , outpath='./')
+    
+
+    with open(imgpath+'imagetime.txt', 'w') as f:
+        for i, ftime in enumerate(ftimes):
+            if i == 0:
+                tmp = ftime + " Cam 1 TR"
             elif i == 3:
                 tmp = ftime + " Cam 4 BR"
             elif i  == 1:
@@ -104,17 +126,26 @@ def convert_latest():
 def goodbye():
     print ('bin2png_latest.py is stopped.')
 
+
 def main():
     print ('bin2png_latest.py is started.')
     while 1:
         try:
             try:
-                convert_latest()
+                #convert_latest()
+                convert_latest_custom_scaling()
             except TypeError:
                 continue
-            shutil.copy2(imgpath+'image.png', '/var/www/html/image')
-            shutil.copy2(imgpath+'imagetime.txt', '/var/www/html/image')
-            time.sleep(9)
+
+            try:
+                shutil.copy2(imgpath+'image.png', '/var/www/html/image')
+                shutil.copy2(imgpath+'imagetime.txt', '/var/www/html/image')
+            except PermissionError:
+                print ("Cannot copy the files due to the permission error...")
+                continue
+                
+
+            time.sleep(1)
         except KeyboardInterrupt:
             exit(0)
 

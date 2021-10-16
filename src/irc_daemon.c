@@ -58,7 +58,10 @@ int main()
     puts ("UVC initialized");
 
 
+    long int logcnt = 0;
+    int strmlogflg = 1;
     while (1) {
+
         for (i=0; i<4; i++) {
             res = uvc_find_device(cams[i].ctx, &cams[i].dev, 0x1e4e, 0x0100, cams[i].serial);
             if (res < 0) {
@@ -80,7 +83,6 @@ int main()
             if (irc_flag[i] == 1) {
                 if (proc_flag[i] == 0) {
                     printf("starting process for device #%d\n", i);
-                    //pid[i] = pthread_create(&pthread[i], NULL, stream_proc, (void*) &cams[i]);
                     pid[i] = pthread_create(&pthread[i], NULL, stream_proc_shutter, (void*) &cams[i]);
                     if (pid[i] < 0) {
                         perror("process create error");
@@ -90,11 +92,13 @@ int main()
                         printf("process %d created \n", pid[i]);
                         proc_flag[i] = 1;
                         pthread_detach(pthread[i]);
-                        //pthread_join(pthread[i], NULL);
                     }
+                    sleep(2);
                 }
                 else {
-                    printf("streaming for device #%d\n", i);
+                    if (strmlogflg) {  
+                        printf("streaming for device #%d\n", i);
+                    }
                 }
             }
             else if (irc_flag[i] == 0) {
@@ -109,6 +113,15 @@ int main()
             }
         }
         printf("\n");
+        if (logcnt == 200) {
+            logcnt = 0;
+            strmlogflg = 1;
+        }
+        else {
+            logcnt++;
+            strmlogflg = 0;
+        }
+
         sleep (3);
     }
 

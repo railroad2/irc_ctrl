@@ -100,6 +100,7 @@ void cb(uvc_frame_t *frame, void *ptr)
     free (isottmp);
 
     strncpy(datestr, isotstr, 10);
+    datestr[10] = '\0';
 
     snprintf(dirName, 40, "./log/%s", datestr);
     mkdir(dirName, 0777);
@@ -204,6 +205,12 @@ void *stream_proc(void *camptr)
     return (void*) 0;
 }
 
+int do_nuc(LEP_CAMERA_PORT_DESC_T *m_portDesc)
+{
+    LEP_RESULT lres;
+    LEP_RunSysFFCNormalization(m_portDesc);
+    return 0;
+}
 
 void *stream_proc_shutter(void *camptr)
 { 
@@ -216,6 +223,9 @@ void *stream_proc_shutter(void *camptr)
     uvc_device_handle_t* devh;
     uvc_stream_ctrl_t ctrl;
 
+    LEP_RESULT lres;
+    LEP_CAMERA_PORT_DESC_T m_portDesc;
+
     stat = detect_irc(cam);
 
     res = uvc_open(cam.dev, &devh);
@@ -224,6 +234,14 @@ void *stream_proc_shutter(void *camptr)
         uvc_unref_device(cam.dev);
         return (void*)-1;
     }
+    shutter_ctrl(devh, 0);
+    shutter_ctrl(devh, 1);
+
+    m_portDesc.portID = 0;
+    m_portDesc.portType = LEP_CCI_UVC;
+    m_portDesc.userPtr = (void*) devh;
+    
+    do_nuc(&m_portDesc);
 
 STARTSTREAMING:
     res = uvc_get_stream_ctrl_format_size(
