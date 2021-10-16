@@ -25,6 +25,12 @@ struct Irc_str {
     char* serial;
     uvc_context_t* ctx;
     uvc_device_t* dev;
+
+    int saverate;
+    int showrate;
+    char *logpath;
+    char *latestpath;
+    
 };
 
 char* get_isot() 
