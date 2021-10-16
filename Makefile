@@ -3,7 +3,8 @@ CC=gcc -x c
 FLAGS= -I/usr/include/opencv4 \
 	   -I/usr/local/include \
 	   -lmysqlclient -L/usr/local/lib \
-	   -luvc -lopencv_core -lopencv_imgcodecs -lpthread 
+	   -luvc -lopencv_core -lopencv_imgcodecs -lpthread \
+	   -lconfig
 
 LIBROOT=/usr/local
 INC=-I$(LIBROOT)/include 

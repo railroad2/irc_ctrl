@@ -6,10 +6,13 @@
 #include <pthread.h>
 
 #include "irc_ctrl.c"
-#include "camserial.h"
+//#include "camserial.h"
+#include "irc_config.c"
 #include "libuvc/libuvc.h"
 
 struct Irc_str cams[4];
+
+char *config_fname = "./gb.cfg";
 
 void exiting()
 {
@@ -30,7 +33,7 @@ void INThandler(int sig)
     exiting();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 
     int i;
@@ -47,9 +50,16 @@ int main()
 
     signal (SIGINT, INThandler);
 
+    struct Camconfig camcfg;
+    if (argc == 2)
+        config_fname = argv[1];
+
+    load_config(config_fname, &camcfg);
+    print_config(camcfg);
+
     for (i=0; i<4; i++) {
-        cams[i].serial = (char*)serial[i];
-        cams[i].idcam = idCam[i];
+        cams[i].serial = (char*) camcfg.serial[i];
+        cams[i].idcam = camcfg.camid[i];
         res = uvc_init(&cams[i].ctx, NULL);
         if (res < 0) {
             uvc_perror(res, "uvc_init");
