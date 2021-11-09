@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
         cams[i].logpath = camcfg.logpath;
         cams[i].latestpath = camcfg.latestpath;
         cams[i].sun_alt_threshold = camcfg.sun_alt_threshold;
+        cams[i].debug = camcfg.debug;
 
         res = uvc_init(&cams[i].ctx, NULL);
         if (res < 0) {
@@ -108,8 +109,9 @@ int main(int argc, char* argv[])
                         printf("process %d created \n", pid[i]);
                         proc_flag[i] = 1;
                         pthread_detach(pthread[i]);
+                        strmlogflg = 1;
                     }
-                    sleep(2);
+                    //sleep(2);
                 }
                 else {
                     if (strmlogflg) {  
@@ -128,7 +130,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        printf("\n");
+        //printf("\n");
         if (logcnt == 200) {
             logcnt = 0;
             strmlogflg = 1;

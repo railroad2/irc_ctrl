@@ -14,6 +14,8 @@ struct Camconfig
     int camid[4];
     char *serial[4];
     double sun_alt_threshold;
+
+    int debug;
 };
 
 
@@ -28,6 +30,7 @@ void print_config(struct Camconfig camcfg)
     printf ("logpath    = %s\n", camcfg.logpath);
     printf ("latestpath = %s\n", camcfg.latestpath);
     printf ("sun altitude threshold = %f\n", camcfg.sun_alt_threshold);
+    printf ("debug = %d\n", camcfg.debug);
     for (int i=0; i<4; i++) {
         puts("------------------------------------------------------------");
         printf ("%d\t camid      = %d\n", i, camcfg.camid[i]);
@@ -50,6 +53,7 @@ int load_config(char *fname, struct Camconfig *camcfg)
     const char *logpath;
     const char *latestpath;
     double sun_alt_threshold;
+    int debug;
     //struct Camconfig camcfg[4];
 
     config_init(&cfg);
@@ -88,6 +92,9 @@ int load_config(char *fname, struct Camconfig *camcfg)
     if (config_lookup_float(&cfg, "sun_alt_threshold", &sun_alt_threshold));
         printf ("sun_alt_threshold : %f\n", sun_alt_threshold);
 
+    if (config_lookup_int(&cfg, "debug", &debug));
+        printf ("debug : %d\n", debug);
+
     puts("Configuration file loading finished.");
 
     int camid;
@@ -101,6 +108,7 @@ int load_config(char *fname, struct Camconfig *camcfg)
     camcfg->logpath = (char*) logpath;
     camcfg->latestpath = (char*) latestpath;
     camcfg->sun_alt_threshold = sun_alt_threshold;
+    camcfg->debug = debug;
 
     setting = config_lookup(&cfg, "caminfo");
     if (setting != NULL) {

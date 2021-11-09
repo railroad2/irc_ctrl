@@ -31,6 +31,7 @@ struct Irc_str {
     char *logpath;
     char *latestpath;
     double sun_alt_threshold; 
+    int debug;
 };
 
 char* get_isot() 
@@ -75,15 +76,34 @@ int detect_irc(struct Irc_str cam)
 }
 
 
+int do_nuc(LEP_CAMERA_PORT_DESC_T *m_portDesc)
+{
+    LEP_RESULT lres;
+    LEP_RunSysFFCNormalization(m_portDesc);
+    return 0;
+}
+
+
 void cb(uvc_frame_t *frame, void *ptr)
 {
     int seq = frame->sequence;
+    struct Irc_str cam = *((struct Irc_str *) ptr);
+    int showrate = cam.showrate;
+    int saverate = cam.saverate;
+    int showflg = 0;
+    int saveflg = 0;
 
     //printf("%d ", seq);
     /* capture every 9 frame */
 	//if (seq % 90 != 0)
-    if (seq % 87 != 0)
-    {
+    if (seq % saverate == 0) {
+        saveflg = 1;
+        showflg = 1;
+    }
+    else if (seq % showrate == 0) {
+        showflg = 1;
+    }
+    else {
         return;
     }
 
@@ -94,24 +114,26 @@ void cb(uvc_frame_t *frame, void *ptr)
     unsigned short *pix = (unsigned short*) frame->data;
     int i;
 
-    char fileName[64];
-    char dirName[40]; 
+    char fileName[200];
+    char dirName[150]; 
     char datestr[20];
     char isotstr[20];
     struct Imginfo info;
-    int ncam = *(int*) ptr;
+    //int ncam = *(int*) ptr;
+    int ncam = cam.idcam;
+    char *logpath = cam.logpath;
+    char *latestpath = cam.latestpath;
     
     char *isottmp = get_isot();
+    char hour[3];
     strcpy(isotstr, get_isot());
+    hour[0] = isottmp[11];
+    hour[1] = isottmp[12];
+    hour[3] = '\0';
     free (isottmp);
 
     strncpy(datestr, isotstr, 10);
     datestr[10] = '\0';
-
-    snprintf(dirName, 40, "./log/%s", datestr);
-    mkdir(dirName, 0777);
-    
-    snprintf(fileName, 64, "./log/%s/%s-cam%d", datestr, isotstr, ncam);
 
     strncpy(info.isotstr, isotstr, strlen(isotstr));
     info.ncam = ncam;
@@ -119,40 +141,51 @@ void cb(uvc_frame_t *frame, void *ptr)
     info.sunflag = 0;
     info.moonflag = 0;
 
-    /* debug 
-    printf ("%s\n", isotstr);
-    printf ("%s\n", datestr);
-    printf ("%s\n", info.isotstr);
-    printf ("%d\n", info.camstat);
-    printf ("%d\n", info.ncam);
-    printf ("%d\n", info.sunflag);
-    printf ("%d\n", info.moonflag);
-    printf ("%s\n", dirName);
-    printf ("%s\n", fileName);
-    */
-
-    FILE *file  = fopen(fileName, "w+");
-    if (file == NULL)
-    {
-        printf ("[Error] Cannot open logging file\n");
-        return ; 
+    /* debug  */
+    if (cam.debug) {
+        printf ("%s\n", info.isotstr);
+        printf ("%d\n", info.camstat);
+        printf ("%d\n", info.ncam);
+        printf ("%d\n", info.sunflag);
+        printf ("%d\n", info.moonflag);
+        printf ("%s\n", logpath);
+        printf ("%s\n", latestpath);
     }
 
-    fwrite(pix, len , 1, file);
-    fclose(file);
+    if (saveflg) {
+        snprintf(dirName, 150, "%s", logpath);
+        mkdir(dirName, 0777);
+        snprintf(dirName, 150, "%s/%s", logpath, datestr);
+        mkdir(dirName, 0777);
+        snprintf(dirName, 150, "%s/%s/%s", logpath, datestr, hour);
+        mkdir(dirName, 0777);
+        snprintf(fileName, 200, "%s/%s-cam%d", dirName, isotstr, ncam);
 
-    char fileName1[64];
-    snprintf(fileName1, 64, "./latest/latest_cam%d", ncam);
+        FILE *file  = fopen(fileName, "w+");
+        if (file == NULL)
+        {
+            printf ("[Error] Cannot open logging file\n");
+            return ; 
+        }
 
-    FILE *file1  = fopen(fileName1, "w");
-    if (file1 == NULL)
-    {
-        printf ("[Error] Cannot open logging file\n");
-        return ; 
+        fwrite(pix, len , 1, file);
+        fclose(file);
     }
 
-    fwrite(pix, len , 1, file1);
-    fclose(file1);
+    if (showflg) {
+        char fileName1[64];
+        snprintf(fileName1, 64, "%s/latest_cam%d", latestpath, ncam);
+
+        FILE *file1  = fopen(fileName1, "w");
+        if (file1 == NULL)
+        {
+            printf ("[Error] Cannot open logging file\n");
+            return ; 
+        }
+
+        fwrite(pix, len , 1, file1);
+        fclose(file1);
+    }
 }
 
 
@@ -211,12 +244,6 @@ void *stream_proc(void *camptr)
     return (void*) 0;
 }
 
-int do_nuc(LEP_CAMERA_PORT_DESC_T *m_portDesc)
-{
-    LEP_RESULT lres;
-    LEP_RunSysFFCNormalization(m_portDesc);
-    return 0;
-}
 
 void *stream_proc_shutter(void *camptr)
 { 
@@ -260,8 +287,9 @@ STARTSTREAMING:
         return (void*)-1;
     }
 
-    uvc_set_ae_mode(devh, 2);
-    res = uvc_start_streaming(devh, &ctrl, cb, (void*) &cam.idcam, 0);
+    //uvc_set_ae_mode(devh, 2);
+    //res = uvc_start_streaming(devh, &ctrl, cb, (void*) &cam.idcam, 0);
+    res = uvc_start_streaming(devh, &ctrl, cb, camptr, 0);
     if (res < 0) {
         uvc_perror(res, "start_streaming");
         printf("Error with Cam %d\n", cam.idcam);
@@ -283,7 +311,6 @@ STARTSTREAMING:
         }
         
         sunflag = detect_sun(cam.idcam, cam.sun_alt_threshold);
-        //sunflag = detect_sun_test(cam.idcam);
 
         if (sunflag == 1) {
             puts("Sun detected");
