@@ -12,7 +12,7 @@
 
 struct Irc_str cams[4];
 
-char *config_fname = "./gb.cfg";
+char *config_fname = "./configs/gb.cfg";
 
 void exiting()
 {
