@@ -129,7 +129,7 @@ void cb(uvc_frame_t *frame, void *ptr)
     strcpy(isotstr, get_isot());
     hour[0] = isottmp[11];
     hour[1] = isottmp[12];
-    hour[3] = '\0';
+    hour[2] = '\0';
     free (isottmp);
 
     strncpy(datestr, isotstr, 10);
