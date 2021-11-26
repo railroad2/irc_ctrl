@@ -122,6 +122,7 @@ def convert_latest_custom_scaling():
                 tmp = ftime + " Cam 3 BL"
             f.write("%s\n" % tmp);
 
+
 @atexit.register
 def goodbye():
     print ('bin2png_latest.py is stopped.')
@@ -132,8 +133,8 @@ def main():
     while 1:
         try:
             try:
-                #convert_latest()
-                convert_latest_custom_scaling()
+                convert_latest()
+                #convert_latest_custom_scaling()
             except TypeError:
                 continue
 
