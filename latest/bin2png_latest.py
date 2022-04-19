@@ -82,11 +82,12 @@ def convert_latest_custom_scaling():
         arrs.append(arrtmp)
         ftimes.append(datetime.utcfromtimestamp(os.path.getmtime(fname)).isoformat())
 
-    vmin = np.min(arrs[3])
-    vmax = np.max(arrs[3])
+    vmin = np.min(arrs[0])/100 - 273.15
+    vmax = np.max(arrs[0])/100 - 273.15
+    print (vmin, vmax)
     for i, arr in enumerate(arrs):
         arrs[i] = scale_arr(arr)
-        #arrs[i] = scale_arr(arr, [0, 25])
+        #arrs[i] = scale_arr(arr, [vmin, vmax])
     
     arrs = np.array(arrs)
     arrs[0] = arrs[0][::-1, ::-1]
@@ -133,8 +134,8 @@ def main():
     while 1:
         try:
             try:
-                convert_latest()
-                #convert_latest_custom_scaling()
+                #convert_latest()
+                convert_latest_custom_scaling()
             except TypeError:
                 continue
 
@@ -146,11 +147,12 @@ def main():
                 continue
                 
 
-            time.sleep(1)
+            time.sleep(4)
         except KeyboardInterrupt:
             exit(0)
 
 
 if __name__=='__main__':
     main()
+
 
