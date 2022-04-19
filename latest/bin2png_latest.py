@@ -13,6 +13,7 @@ from matplotlib import cm
 
 sys.path.append(os.path.dirname(os.getcwd()))
 from scripts.bin2png import *
+import scripts.sbcstatus as sbc
 
 #imgpath = '/home/gb/irc_ctrl/latest'
 imgpath = './'
@@ -110,18 +111,16 @@ def convert_latest_custom_scaling():
 
     writepng_pil(img, 'image.png' , outpath='./')
     
+    cams = ['Cam 1 TR', 'Cam 2 TL', 'Cam 3 BL', 'Cam 4 BR']
 
     with open(imgpath+'imagetime.txt', 'w') as f:
-        for i, ftime in enumerate(ftimes):
-            if i == 0:
-                tmp = ftime + " Cam 1 TR"
-            elif i == 3:
-                tmp = ftime + " Cam 4 BR"
-            elif i  == 1:
-                tmp = ftime + " Cam 2 TL"
-            elif i == 2:
-                tmp = ftime + " Cam 3 BL"
-            f.write("%s\n" % tmp);
+        for ftime, cam in zip(ftimes, cams):
+            tmp = ftime + cam + '\n'
+            f.write(tmp);
+
+        f.write("\nStatus of SBC\n")
+        f.write(f'Temperature: {sbc.temperature()}°C\n')
+        f.write(sbc.diskusage())
 
 
 @atexit.register

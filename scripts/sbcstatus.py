@@ -8,15 +8,18 @@ def diskusage():
     return result.stdout.decode('utf-8')
 
 
-def sbctemperature():
+def temperature(unit=False):
     result = subprocess.run(['sensors', '-j'], stdout=subprocess.PIPE)
     j = json.loads(result.stdout.decode('utf-8'))
     T = j['ddr_thermal-virtual-0']['temp1']['temp1_input']
 
-    return T
+    if unit:
+        return f'{T}°C'
+    else:
+        return T
 
 
 if __name__ == "__main__":
     print (diskusage())
-    print (sbctemperature())
+    print (temperature())
 
