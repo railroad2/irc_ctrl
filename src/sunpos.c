@@ -30,11 +30,11 @@ int sunpos()
        tm.tm_hour, tm.tm_min, tm.tm_sec);
 
     // Tenerife
-    //location.longitude = -16.5124758;
-    //location.latitude = 28.300463;
+    location.longitude = -16.5124758;
+    location.latitude = 28.300463;
     //Seoul
-    location.longitude = 127;
-    location.latitude = 37.5;
+    //location.longitude = 127;
+    //location.latitude = 37.5;
 
     SolTrack(time, 
              location, 
