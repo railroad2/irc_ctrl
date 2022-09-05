@@ -13,13 +13,16 @@ from calibration import*
 from astropy.coordinates import SkyCoord
 from datetime import datetime
 
+thresh_TF = True
+thresh = np.ones((120, 160))
+
 def arr2img(arr):
   min = np.min(arr)
   max = np.max(arr)
   return np.uint8(255*scale_arr_nonzero(arr)),min,max
 
 
-def corner_del(arrs):
+def corner_del_threshold(arrs):
   imgs,min,max=arr2img(arrs)
   t1, thresh1 = cv2.threshold(imgs[0], -1, 1,  cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
   t2, thresh2 = cv2.threshold(imgs[1], -1, 1,  cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
@@ -30,6 +33,23 @@ def corner_del(arrs):
   arrs[1] = arrs[1]*thresh2
   arrs[2] = arrs[2]*thresh3
   arrs[3] = arrs[3]*thresh4
+  return arrs
+
+def corner_del(arrs):
+  global thresh_TF
+  global thresh
+
+  if thresh_TF:
+    for i in range(0,160):
+      for j in range(0,120):
+        if(40*i+30*j < 1200):
+          thresh[j,i] = 0
+    thresh_TF = False
+
+  arrs[0] = arrs[0]*thresh[::-1,::]
+  arrs[1] = arrs[1]*thresh[::-1,::-1]
+  arrs[2] = arrs[2]*thresh[::-1,::]
+  arrs[3] = arrs[3]*thresh[::-1,::-1]
   return arrs
 
 
